@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Погода</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #FF9A8B, #FF6A88, #FF99AC);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            flex-direction: column; /* Изменение направления элементов на вертикальное */
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            margin-bottom: 100px; /* Расстояние между блоком и полем ввода */
+            font-size: 24px; /* Увеличенный размер шрифта */
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 400px;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            background: #ffe4e1;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #7F00FF, #E100FF);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #6B00E6, #D100E6);
+        }
+
+        .separator {
+            width: 100%;
+            height: 2px;
+            background: white;
+            margin: 20px 0;
+        }
+
+        .result {
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>Погода в мире</div>
+    </div>
+
+    <div class="container">
+        <input type="text" id="city" placeholder="Львов, Украина">
+        <button onclick="getWeather()">УЗНАТЬ ПОГОДУ</button>
+        <div class="separator"></div>
+        <div id="result" class="result">Введите город, чтобы узнать погоду!</div>
+    </div>
+
+    <script>
+        // Получить город пользователя через API ipinfo.io
+        function getCityFromIP() {
+            fetch('https://ipinfo.io/json?token=a0f790775c522e') // замените на ваш API ключ
+                .then(response => response.json())
+                .then(data => {
+                    const city = data.city;
+                    // Вставить город в поле ввода
+                    document.getElementById('city').value = city;
+                })
+                .catch(error => {
+                    console.log('Не удалось определить город:', error);
+                });
+        }
+
+        // Вставить город при загрузке страницы
+        window.onload = function() {
+            getCityFromIP();
+        };
+
+        function getWeather() {
+            const city = document.getElementById('city').value.trim();
+            if (!city) {
+                alert('Введите город!');
+                return;
+            }
+
+            const apiKey = 'c32fb295576fb272a75088a857bb0079'; // Вставьте ваш API ключ
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=ru&appid=${apiKey}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Город не найден');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const temp = data.main.temp;
+                    const location = `${data.name}, ${data.sys.country}`;
+                    document.getElementById('result').textContent = `В городе ${location} сейчас ${temp.toFixed(2)} градусов!`;
+                })
+                .catch(error => {
+                    document.getElementById('result').textContent = 'Ошибка: ' + error.message;
+                });
+        }
+    </script>
+</body>
+</html>
